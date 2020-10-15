@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Azure.Documents;
+using Polly;
 
 namespace CacheStrategyImplementation.Factories
 {
     public interface ICosmosFactory
     {
         IDocumentClient CreateCosmosConnection();
-        Uri DocumentCollectionUri { get; }
-        Uri DatabaseUri { get; }
+        IAsyncPolicy CreateResiliencyAsyncPolicy();
     }
 }

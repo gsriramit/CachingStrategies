@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Azure.Documents.Client;
+using Polly;
 
 namespace CacheStrategyImplementation.Configuration
 {
@@ -12,6 +14,22 @@ namespace CacheStrategyImplementation.Configuration
         public string CosmosStoreContainerId { get; set; }
         public int CosmosStoreMaxRetryWaitTime { get; set; }
         public int CosmosStoreMaxRetryAttempts { get; set; }
+        public TimeSpan OperationTimeOut { get; set; }
+
+        
+
+        public Uri GetDocumentCollectionUri()
+        {
+            return UriFactory.CreateDocumentCollectionUri(CosmosStoreDatabaseId,
+                CosmosStoreContainerId);
+        }
+
+        public Uri GetDatabaseUri()
+        {
+            return UriFactory.CreateDatabaseUri(CosmosStoreDatabaseId);
+        }
+       
+        
 
     }
 }

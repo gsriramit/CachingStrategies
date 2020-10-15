@@ -10,12 +10,10 @@ namespace CacheStrategyImplementation.Repos
 {
     public class RedisRepository: IRedisRepository
     {
-        private readonly IRedisCacheFactory _cacheFactory;
         private static Lazy<IConnectionMultiplexer> _connectionMultiplexer;
         public RedisRepository(IRedisCacheFactory cacheFactory)
         {
-            _cacheFactory = cacheFactory;
-            _connectionMultiplexer = _cacheFactory.CreateRedisConnection();
+            _connectionMultiplexer = cacheFactory.CreateRedisConnection();
         }
 
         public static IConnectionMultiplexer Connection => _connectionMultiplexer.Value;

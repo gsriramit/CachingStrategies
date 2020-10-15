@@ -7,6 +7,8 @@ using CacheStrategyImplementation.Configuration;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Configuration;
+using Polly;
+using Polly.Timeout;
 
 namespace CacheStrategyImplementation.Factories
 {
@@ -14,6 +16,9 @@ namespace CacheStrategyImplementation.Factories
     {
         private readonly IConfiguration _appConfiguration;
         private IDocumentClient _documentClient;
+        private Uri _documentCollectionUri;
+        private Uri _databaseUri;
+
         public CosmosFactory(IConfiguration appConfiguration)
         {
             _appConfiguration = appConfiguration;
@@ -29,18 +34,45 @@ namespace CacheStrategyImplementation.Factories
                     RetryOptions = new RetryOptions()
                     {
                         MaxRetryAttemptsOnThrottledRequests = cosmosStoreContext.CosmosStoreMaxRetryAttempts
-                    }
+                    }, RequestTimeout = cosmosStoreContext.OperationTimeOut
                 });
 
-            this.DocumentCollectionUri = UriFactory.CreateDocumentCollectionUri(cosmosStoreContext.CosmosStoreDatabaseId,
-                cosmosStoreContext.CosmosStoreContainerId);
-            this.DatabaseUri = UriFactory.CreateDatabaseUri(cosmosStoreContext.CosmosStoreDatabaseId);
+            _documentCollectionUri = cosmosStoreContext.GetDocumentCollectionUri();
+            _databaseUri = cosmosStoreContext.GetDatabaseUri();
 
             return _documentClient;
         }
 
-        public Uri DocumentCollectionUri { get; private set; }
-        public Uri DatabaseUri { get; private set; }
+        public IAsyncPolicy CreateResiliencyAsyncPolicy()
+        {
+            return GetTimeOutCircuitBreakerResiliencyPolicy(
+                int.Parse(_appConfiguration["OperationTimeOutInSeconds"]),
+                int.Parse(_appConfiguration["CircuitBreakerThresholdExceptions"]),
+                int.Parse(_appConfiguration["CircuitBreakerOpenDurationInSeconds"]),
+                TimeoutStrategy.Pessimistic);
+        }
+
+        private IAsyncPolicy GetTimeOutCircuitBreakerResiliencyPolicy(int operationTimeoutInSec,
+            int circuitBreakerThresholdExceptions, int circuitBreakerOpenDurationInSeconds, TimeoutStrategy timeoutStrategy)
+        {
+
+            var overallOperationTimeOutSpan = TimeSpan.FromSeconds(operationTimeoutInSec);
+
+
+            var asyncBreaker = Policy
+                .Handle<Exception>()
+                .CircuitBreakerAsync(
+                    exceptionsAllowedBeforeBreaking: circuitBreakerThresholdExceptions,
+                    durationOfBreak: TimeSpan.FromSeconds(circuitBreakerOpenDurationInSeconds)
+                );
+
+            var asyncPerCallTimeout =
+                Policy.TimeoutAsync(overallOperationTimeOutSpan, timeoutStrategy);
+
+
+            return Policy.WrapAsync(asyncBreaker, asyncPerCallTimeout);
+
+        }
 
         private CosmosDbContext GetCosmosDbContext()
         {
@@ -55,8 +87,12 @@ namespace CacheStrategyImplementation.Factories
                         "Store.ConnectionPolicy.MaxRetryWaitTimeInSeconds"]),
                 CosmosStoreMaxRetryAttempts =
                     Convert.ToInt16(_appConfiguration[
-                        "Store.ConnectionPolicy.MaxRetryAttemptsOnThrottledRequests"])
+                        "Store.ConnectionPolicy.MaxRetryAttemptsOnThrottledRequests"]),
+                OperationTimeOut = TimeSpan.FromSeconds(
+                    int.Parse(_appConfiguration["OperationTimeOutInSeconds"])),
+
             };
         }
+
     }
 }

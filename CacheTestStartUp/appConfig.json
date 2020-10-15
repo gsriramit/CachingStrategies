@@ -1,3 +1,18 @@
 {
-  
+  "Store.EndpointUri": "",
+  "Store.Key": "",
+  "Store.DatabaseId": "",
+  "Store.ContainerId": "",
+  "Store.ConnectionPolicy.MaxRetryWaitTimeInSeconds": "",
+  "Store.ConnectionPolicy.MaxRetryAttemptsOnThrottledRequests": "",
+  "Cache.CacheName": "",
+  "Cache.CachePassword": "",
+  "Cache.ConnectTimeout": "",
+  "Cache.SyncTimeout": "",
+  "Cache.MaxConnectRetry": "",
+  "Cache.KeepAlive": "",
+  "Cache.RetryBackOffTime": "",
+  "Cache.RetryBackOffMaxTime": "",
+  "Cache.TLSVersion": "" 
+
 }
