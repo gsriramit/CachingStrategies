@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using StackExchange.Redis;
 
 namespace CacheStrategyImplementation.Repos
 {
@@ -11,5 +12,6 @@ namespace CacheStrategyImplementation.Repos
         Task<bool> WriteItemAsync<T>(string key, T item) where T : class;
         Task<bool> IfExistInCacheAsync(string key);
         Task  RemoveFromCacheAsync(string key);
+        Task<ITransaction> CreateRedisTranscation();
     }
 }

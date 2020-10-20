@@ -14,6 +14,8 @@ namespace CacheStrategyImplementation.Repos
             Expression<Func<T, bool>> filterPredicate);
         IDocumentQuery<T> CreateDocumentQuery<T>(FeedOptions queryFeedOptions,
             string sqlQuery);
+        Task<T> ReadItemAsync<T>(string partitionKey);
+        Task<bool> CreateItemAsync<T>(string partitionKey, T entity);
     }
 
 }

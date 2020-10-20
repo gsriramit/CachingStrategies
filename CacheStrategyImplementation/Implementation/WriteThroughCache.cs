@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CacheStrategyImplementation.Contracts;
 using CacheStrategyImplementation.Repos;
+using StackExchange.Redis;
 
 namespace CacheStrategyImplementation.Implementation
 {
@@ -14,22 +15,22 @@ namespace CacheStrategyImplementation.Implementation
     */
     public class WriteThroughCache : ICacheStrategy
     {
-        private readonly IRedisRepository _redisStore;
-        private readonly ICosmosRepository _cosmosStore;
-        public WriteThroughCache(IRedisRepository redisStore, ICosmosRepository cosmosStore)
+        private readonly IWriteThroughStrategy _writeStrategy;
+        private readonly IReadThroughStrategy _readStrategy;
+
+        public WriteThroughCache(IRedisRepository redisStore, ICosmosRepository cosmosStore, IWriteThroughStrategy writeStrategy, IReadThroughStrategy readStrategy)
         {
-            _redisStore = redisStore;
-            _cosmosStore = cosmosStore;
+            _writeStrategy = writeStrategy;
+            _readStrategy = readStrategy;
         }
-        public Task<T> ReadFromCacheAsync<T>(string key) where T:class
+        public async Task<T> ReadFromCacheAsync<T>(string key) where T:class
         {
-            throw new NotImplementedException();
+            return await _readStrategy.ReadFromCacheAsync<T>(key);
         }
 
-        public Task<bool> WriteToCacheAsync<T>(string key, T item) where T:class
+        public async Task<bool> WriteToCacheAsync<T>(string key, T item) where T:class
         {
-            // Implement a write through cache mechanism
-            return Task.FromResult(false);
+            return await _writeStrategy.WriteToCacheAsync<T>(key, item);
         }
     }
 }

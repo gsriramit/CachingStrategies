@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.AccessControl;
 using System.Text;
 using CacheStrategyImplementation.Configuration;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +19,17 @@ namespace CacheStrategyImplementation.Factories
         private IDocumentClient _documentClient;
         private Uri _documentCollectionUri;
         private Uri _databaseUri;
+
+        public string getDatabaseID()
+        {
+                return GetCosmosDbContext().CosmosStoreDatabaseId;
+        }
+
+        public string getContainerID()
+        {
+            return GetCosmosDbContext().CosmosStoreContainerId;
+        }
+
 
         public CosmosFactory(IConfiguration appConfiguration)
         {
@@ -50,6 +62,12 @@ namespace CacheStrategyImplementation.Factories
                 int.Parse(_appConfiguration["CircuitBreakerThresholdExceptions"]),
                 int.Parse(_appConfiguration["CircuitBreakerOpenDurationInSeconds"]),
                 TimeoutStrategy.Pessimistic);
+        }
+
+        public CosmosClient CreateCosmosClient()
+        {
+            CosmosDbContext cosmosStoreContext = this.GetCosmosDbContext();
+            return new CosmosClient(cosmosStoreContext.CosmosStoreEndpointUri, cosmosStoreContext.CosmosStoreAuthKey);
         }
 
         private IAsyncPolicy GetTimeOutCircuitBreakerResiliencyPolicy(int operationTimeoutInSec,
