@@ -16,20 +16,5 @@ namespace CacheStrategyImplementation.Configuration
         public int CosmosStoreMaxRetryAttempts { get; set; }
         public TimeSpan OperationTimeOut { get; set; }
 
-        
-
-        public Uri GetDocumentCollectionUri()
-        {
-            return UriFactory.CreateDocumentCollectionUri(CosmosStoreDatabaseId,
-                CosmosStoreContainerId);
-        }
-
-        public Uri GetDatabaseUri()
-        {
-            return UriFactory.CreateDatabaseUri(CosmosStoreDatabaseId);
-        }
-       
-        
-
     }
 }

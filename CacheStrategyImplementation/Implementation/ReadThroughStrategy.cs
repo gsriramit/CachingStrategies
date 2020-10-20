@@ -16,15 +16,14 @@ namespace CacheStrategyImplementation.Implementation
             _cosmosStore = cosmosStore;
         }
 
-        public async Task<T> ReadFromCacheAsync<T>(string key) where T : class
-        {
-            
-            var cacheData = await _redisStore.ReadItemAsync<T>(key);
+        public async Task<T> ReadFromCacheAsync<T>(string partitionKey, string itemKey) where T : class
+        {            
+            var cacheData = await _redisStore.ReadItemAsync<T>(itemKey);
             if (cacheData == null)
             {
                 // take from CosmoDB and update cache
-                var cosmoData = await  _cosmosStore.ReadItemAsync<T>(key);
-                await _redisStore.WriteItemAsync<T>(key, cosmoData);
+                var cosmoData = await  _cosmosStore.ReadItemAsync<T>(itemKey, partitionKey);
+                await _redisStore.WriteItemAsync<T>(itemKey, cosmoData);
                 return cosmoData;
             }
 

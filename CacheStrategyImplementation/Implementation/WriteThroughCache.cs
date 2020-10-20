@@ -18,14 +18,14 @@ namespace CacheStrategyImplementation.Implementation
         private readonly IWriteThroughStrategy _writeStrategy;
         private readonly IReadThroughStrategy _readStrategy;
 
-        public WriteThroughCache(IRedisRepository redisStore, ICosmosRepository cosmosStore, IWriteThroughStrategy writeStrategy, IReadThroughStrategy readStrategy)
+        public WriteThroughCache(IWriteThroughStrategy writeStrategy, IReadThroughStrategy readStrategy)
         {
             _writeStrategy = writeStrategy;
             _readStrategy = readStrategy;
         }
-        public async Task<T> ReadFromCacheAsync<T>(string key) where T:class
+        public async Task<T> ReadFromCacheAsync<T>(string itemKey, string datastorePartitionId) where T:class
         {
-            return await _readStrategy.ReadFromCacheAsync<T>(key);
+            return await _readStrategy.ReadFromCacheAsync<T>(datastorePartitionId, itemKey);
         }
 
         public async Task<bool> WriteToCacheAsync<T>(string key, T item) where T:class

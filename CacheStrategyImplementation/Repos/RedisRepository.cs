@@ -48,7 +48,7 @@ namespace CacheStrategyImplementation.Repos
             await GetCacheDatabase().KeyDeleteAsync(key);
         }
 
-        public async Task<ITransaction> CreateRedisTranscation()
+        public ITransaction CreateRedisTranscation()
         {
             var transaction = GetCacheDatabase().CreateTransaction();
             return transaction;

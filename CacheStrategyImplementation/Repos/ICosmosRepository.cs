@@ -9,13 +9,11 @@ using Microsoft.Azure.Documents.Linq;
 namespace CacheStrategyImplementation.Repos
 {
     public interface ICosmosRepository
-    {
-        IDocumentQuery<T> CreateDocumentQuery<T>(FeedOptions queryFeedOptions,
-            Expression<Func<T, bool>> filterPredicate);
-        IDocumentQuery<T> CreateDocumentQuery<T>(FeedOptions queryFeedOptions,
-            string sqlQuery);
-        Task<T> ReadItemAsync<T>(string partitionKey);
+    {       
+        Task<T> ReadItemAsync<T>(string documentId, string partitionKey);
         Task<bool> CreateItemAsync<T>(string partitionKey, T entity);
+
+        Task<bool> UpsertItemAsync<T>(string partitionKey, T entity);
     }
 
 }

@@ -5,6 +5,6 @@ namespace CacheStrategyImplementation.Contracts
 {
     public interface IReadThroughStrategy
     {
-        Task<T> ReadFromCacheAsync<T>(string key) where T : class;
+        Task<T> ReadFromCacheAsync<T>(string partitionKey, string itemKey) where T : class;
     }
 }

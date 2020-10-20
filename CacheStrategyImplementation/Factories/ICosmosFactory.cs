@@ -9,7 +9,6 @@ namespace CacheStrategyImplementation.Factories
 {
     public interface ICosmosFactory
     {
-        IDocumentClient CreateCosmosConnection();
         IAsyncPolicy CreateResiliencyAsyncPolicy();
         CosmosClient CreateCosmosClient();
         string getDatabaseID();

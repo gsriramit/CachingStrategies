@@ -19,40 +19,9 @@ namespace CacheStrategyImplementation.Factories
         private IDocumentClient _documentClient;
         private Uri _documentCollectionUri;
         private Uri _databaseUri;
-
-        public string getDatabaseID()
-        {
-                return GetCosmosDbContext().CosmosStoreDatabaseId;
-        }
-
-        public string getContainerID()
-        {
-            return GetCosmosDbContext().CosmosStoreContainerId;
-        }
-
-
         public CosmosFactory(IConfiguration appConfiguration)
         {
             _appConfiguration = appConfiguration;
-        }
-        
-        public IDocumentClient CreateCosmosConnection()
-        {
-            CosmosDbContext cosmosStoreContext = this.GetCosmosDbContext();
-            _documentClient = new DocumentClient(new Uri(cosmosStoreContext.CosmosStoreEndpointUri),
-                cosmosStoreContext.CosmosStoreAuthKey,
-                new ConnectionPolicy()
-                {
-                    RetryOptions = new RetryOptions()
-                    {
-                        MaxRetryAttemptsOnThrottledRequests = cosmosStoreContext.CosmosStoreMaxRetryAttempts
-                    }, RequestTimeout = cosmosStoreContext.OperationTimeOut
-                });
-
-            _documentCollectionUri = cosmosStoreContext.GetDocumentCollectionUri();
-            _databaseUri = cosmosStoreContext.GetDatabaseUri();
-
-            return _documentClient;
         }
 
         public IAsyncPolicy CreateResiliencyAsyncPolicy()
@@ -67,7 +36,23 @@ namespace CacheStrategyImplementation.Factories
         public CosmosClient CreateCosmosClient()
         {
             CosmosDbContext cosmosStoreContext = this.GetCosmosDbContext();
-            return new CosmosClient(cosmosStoreContext.CosmosStoreEndpointUri, cosmosStoreContext.CosmosStoreAuthKey);
+            return new CosmosClient(cosmosStoreContext.CosmosStoreEndpointUri,
+                cosmosStoreContext.CosmosStoreAuthKey, new CosmosClientOptions()
+                {
+                    MaxRetryAttemptsOnRateLimitedRequests = cosmosStoreContext.CosmosStoreMaxRetryAttempts,
+                    RequestTimeout = cosmosStoreContext.OperationTimeOut
+
+                });
+        }
+
+        public string getDatabaseID()
+        {
+            return GetCosmosDbContext().CosmosStoreDatabaseId;
+        }
+
+        public string getContainerID()
+        {
+            return GetCosmosDbContext().CosmosStoreContainerId;
         }
 
         private IAsyncPolicy GetTimeOutCircuitBreakerResiliencyPolicy(int operationTimeoutInSec,

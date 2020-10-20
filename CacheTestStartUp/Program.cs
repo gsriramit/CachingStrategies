@@ -14,7 +14,6 @@ namespace CacheTestStartUp
         
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
             IConfiguration config =  new ConfigurationBuilder().
                 SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "AppSettings"))
                 .AddJsonFile(ConfigFileName)
@@ -28,9 +27,9 @@ namespace CacheTestStartUp
             //Create the cosmos store instance
             ICosmosRepository cosmosStore = new SqlCosmosRepository(cosmosFactory);
             //create the write-through cache strategy
-            ICacheStrategy cacheStrategy = new WriteThroughCache(redisStore, cosmosStore);
+            /*ICacheStrategy cacheStrategy = new WriteThroughCache(redisStore, cosmosStore);
             //create an instance of the test execution class
-            var cacheOperationsTest = new ExecuteCacheStrategy(cacheStrategy);
+            var cacheOperationsTest = new ExecuteCacheStrategy(cacheStrategy);*/
             
             // Read Values from command line or read data from file
 
