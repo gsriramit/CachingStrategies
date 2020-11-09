@@ -43,9 +43,10 @@ namespace CacheStrategyImplementation.Repos
             return result;
         }
 
-        public async Task RemoveFromCacheAsync(string key)
+        public async Task<bool> RemoveFromCacheAsync(string key)
         {
-            await GetCacheDatabase().KeyDeleteAsync(key);
+            var cacheItemDeletionStatus = await GetCacheDatabase().KeyDeleteAsync(key);
+            return cacheItemDeletionStatus;
         }
 
         public ITransaction CreateRedisTranscation()

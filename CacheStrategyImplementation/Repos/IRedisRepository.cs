@@ -11,7 +11,7 @@ namespace CacheStrategyImplementation.Repos
         Task<T> ReadItemAsync<T>(string key) where T : class;
         Task<bool> WriteItemAsync<T>(string key, T item) where T : class;
         Task<bool> IfExistInCacheAsync(string key);
-        Task  RemoveFromCacheAsync(string key);
+        Task<bool>  RemoveFromCacheAsync(string key);
         ITransaction CreateRedisTranscation();
     }
 }
