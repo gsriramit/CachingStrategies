@@ -13,7 +13,7 @@ namespace CacheStrategy_IntegrationTests
     {
         //System under test
         private static IRedisRepository _redisRepository;
-        private const string testKeyId = "";
+        private const string testKeyId = "4cb67ab0-ba1a-0e8a-8dfc-d48472fd5766";
         private const string newWriteKeyId = "";
         [ClassInitialize]
         public static void Init(TestContext context)
@@ -47,7 +47,7 @@ namespace CacheStrategy_IntegrationTests
                 VolcanoName = "Abu",
                 Country = "Japan",
                 Region = "Honshu-Japan",
-                Location = {
+                Location = new Location() {
                 type= "Point",
                 coordinates= new float[2]{131.6F, 34.5F }
                 },
@@ -101,8 +101,7 @@ namespace CacheStrategy_IntegrationTests
 
         private static IConfiguration CreateConfigurationProvider()
         {
-            IConfigurationRoot configuration = new ConfigurationBuilder()
-            .SetBasePath("")
+            IConfigurationRoot configuration = new ConfigurationBuilder()            
             .AddJsonFile("appsettings.json")
             .Build();
             return configuration;

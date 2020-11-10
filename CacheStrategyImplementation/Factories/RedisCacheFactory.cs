@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Authentication;
 using System.Text;
 using Microsoft.Extensions.Configuration;
@@ -9,18 +10,21 @@ namespace CacheStrategyImplementation.Factories
 {
     public class RedisCacheFactory: IRedisCacheFactory
     {
-        private readonly IConfiguration _appConfiguration;
+        private readonly IConfiguration _appConfiguration;        
+        private Lazy<ConnectionMultiplexer> _cacheConnection;
+        
         public RedisCacheFactory(IConfiguration appConfiguration)
         {
             _appConfiguration = appConfiguration;
+            ConfigurationOptions cacheConfiguration = GetRedisConfigurationOptions();
+            _cacheConnection = new Lazy<ConnectionMultiplexer>(ConnectionMultiplexer.Connect(cacheConfiguration));
         }
-        public Lazy<IConnectionMultiplexer> CreateRedisConnection()
+
+        public ConnectionMultiplexer CreateRedisConnection()
         {
-            ConfigurationOptions cacheConfiguration = this.GetRedisConfigurationOptions();
-            Lazy<IConnectionMultiplexer> cacheConnection =
-                new Lazy<IConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(cacheConfiguration));
-            return cacheConnection;
-        }
+            return _cacheConnection.Value;
+        }      
+
 
         /// <summary>
         /// Configuration options needed to initialize connection with redis server

@@ -7,6 +7,6 @@ namespace CacheStrategyImplementation.Factories
 {
     public interface IRedisCacheFactory
     {
-        Lazy<IConnectionMultiplexer> CreateRedisConnection();
+        ConnectionMultiplexer CreateRedisConnection();
     }
 }

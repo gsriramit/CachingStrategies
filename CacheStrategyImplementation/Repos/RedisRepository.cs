@@ -9,17 +9,15 @@ using StackExchange.Redis;
 namespace CacheStrategyImplementation.Repos
 {
     public class RedisRepository: IRedisRepository
-    {
-        private static Lazy<IConnectionMultiplexer> _connectionMultiplexer;
+    {       
+        private static IConnectionMultiplexer Connection;
         public RedisRepository(IRedisCacheFactory cacheFactory)
-        {
-            _connectionMultiplexer = cacheFactory.CreateRedisConnection();
+        { 
+            Connection = cacheFactory.CreateRedisConnection();
         }
 
-        public static IConnectionMultiplexer Connection => _connectionMultiplexer.Value;
-
         private static IDatabase GetCacheDatabase()
-        {
+        {            
             return Connection.GetDatabase();
         }
 
