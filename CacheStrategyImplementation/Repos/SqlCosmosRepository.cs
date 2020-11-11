@@ -11,6 +11,7 @@ using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
 using Polly;
+using PartitionKey = Microsoft.Azure.Cosmos.PartitionKey;
 
 namespace CacheStrategyImplementation.Repos
 {
@@ -34,26 +35,40 @@ namespace CacheStrategyImplementation.Repos
 
         }
 
-        public async Task<bool> CreateItemAsync<T>(string partitionKey, T entity)
+        public async Task<bool> CreateItemAsync<T>(string documentId, T entity)
         {
             // Create an item in the container representing the Andersen family. 
             // Note we provide the value of the partition key for this item, which is "Andersen"
-            ItemResponse<T> itemResponse = await _container.CreateItemAsync<T>(
-                entity,
-                new Microsoft.Azure.Cosmos.PartitionKey(entity.GetType().GetProperty(partitionKey).ToString()));
+            ItemResponse<T> itemResponse = await _container.CreateItemAsync(
+                entity);
             return itemResponse.StatusCode == System.Net.HttpStatusCode.Created;
         }
 
-        public async Task<bool> UpsertItemAsync<T>(string partitionKey, T entity)
+        public async Task<bool> UpsertItemAsync<T>(string documentId, T entity)
         {
             // Create an item in the container representing the Andersen family. 
             // Note we provide the value of the partition key for this item, which is "Andersen"
-            ItemResponse<T> itemResponse = await _container.UpsertItemAsync<T>(
-                entity,
-                new Microsoft.Azure.Cosmos.PartitionKey(entity.GetType().GetProperty(partitionKey).ToString()));
+            ItemResponse<T> itemResponse = await _container.UpsertItemAsync(
+                entity);
             return itemResponse.StatusCode == System.Net.HttpStatusCode.Created;
         }
 
+        public async Task<bool> ReplaceItemAsync<T>(string documentId, T entity)
+        {
+            // Create an item in the container representing the Andersen family. 
+            // Note we provide the value of the partition key for this item, which is "Andersen"
+            ItemResponse<T> itemResponse = await _container.ReplaceItemAsync<T>(
+                entity, documentId);
+            return itemResponse.StatusCode == System.Net.HttpStatusCode.OK;
+        }
 
+        public async Task<bool> DeleteItemAsync<T>(string documentId, PartitionKey partitionKey)
+        {
+            // Create an item in the container representing the Andersen family. 
+            // Note we provide the value of the partition key for this item, which is "Andersen"
+            ItemResponse<T> itemResponse = await _container.DeleteItemAsync<T>(
+                documentId, partitionKey);
+            return itemResponse.StatusCode == System.Net.HttpStatusCode.NoContent;
+        }
     }
 }
