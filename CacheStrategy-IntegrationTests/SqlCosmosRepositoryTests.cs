@@ -50,9 +50,12 @@ namespace CacheStrategy_IntegrationTests
 
             //Act
             bool cosmosWriteStatus = await _cosmosRepository.CreateItemAsync(writeTestObject.id, writeTestObject);
+            var volcanoObj = await _cosmosRepository.ReadItemAsync<Volcano>(writeTestObject.id, writeTestObject.Country);
             //Assert
             Assert.IsTrue(cosmosWriteStatus);
-
+            Assert.AreEqual(volcanoObj.id, writeTestObject.id);
+            Assert.AreEqual(volcanoObj.VolcanoName, writeTestObject.VolcanoName);
+            Assert.AreEqual(volcanoObj.Country, writeTestObject.Country);
         }
 
         [TestMethod]
@@ -64,9 +67,12 @@ namespace CacheStrategy_IntegrationTests
 
             //Act
             bool cosmosWriteStatus = await _cosmosRepository.UpsertItemAsync(writeTestObject.id, writeTestObject);
+            var volcanoObj = await _cosmosRepository.ReadItemAsync<Volcano>(writeTestObject.id, writeTestObject.Country);
             //Assert
             Assert.IsTrue(cosmosWriteStatus);
-
+            Assert.AreEqual(volcanoObj.id, writeTestObject.id);
+            Assert.AreEqual(volcanoObj.VolcanoName, writeTestObject.VolcanoName);
+            Assert.AreEqual(volcanoObj.Country, writeTestObject.Country);
         }
 
         [TestMethod]
@@ -79,8 +85,10 @@ namespace CacheStrategy_IntegrationTests
 
             //Act
             bool cosmosWriteStatus = await _cosmosRepository.ReplaceItemAsync(writeTestObject.id, writeTestObject);
+            var volcanoObj = await _cosmosRepository.ReadItemAsync<Volcano>(writeTestObject.id, writeTestObject.Country);
             //Assert
             Assert.IsTrue(cosmosWriteStatus);
+            Assert.AreEqual(volcanoObj.VolcanoName, writeTestObject.VolcanoName);
 
         }
 
