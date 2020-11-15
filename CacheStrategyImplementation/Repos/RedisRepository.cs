@@ -24,7 +24,7 @@ namespace CacheStrategyImplementation.Repos
         public async Task<T> ReadItemAsync<T>(string key) where T:class
         {
             RedisValue cacheValue = await GetCacheDatabase().StringGetAsync(key);
-            T result = JsonConvert.DeserializeObject<T>(cacheValue.ToString());
+            T result = cacheValue.HasValue ? JsonConvert.DeserializeObject<T>(cacheValue.ToString()) : null;
             return result;
         }
 
