@@ -12,52 +12,59 @@ using FakeItEasy;
 namespace CacheStrategy_IntegrationTests
 {
     [TestClass]
-    public class ReadThroughStrategyTest
+    public class WriteThroughStrategyTest
     {
         //System under test
         private static ICosmosRepository _cosmosRepository;
         private static IRedisRepository _redisRepository;
-        private static IReadThroughStrategy _readThroughStrategy;
-        private string _partitionKey = "Japan";
-        private string _itemId = "4cb67ab0-ba1a-0e8a-8dfc-d48472fd5766";
-
+        private static IWriteThroughStrategy _writeThroughStrategy;        
+        private string _itemId = "4cb67ab0-ba1a-0e8a-8dfc-d48472fd5768";
+        Volcano writeTestObject = new Volcano()
+        {
+            VolcanoName = "Abu",
+            Country = "Japan",
+            Region = "Honshu-Japan- modified",
+            Location = new Location()
+            {
+                type = "Point",
+                coordinates = new float[2] { 131.6F, 34.5F }
+            },
+            Elevation = 571,
+            Type = "Shield volcano",
+            Status = "Holocene",
+            LastKnownEruption = "Unknown",
+            id = "4cb67ab0-ba1a-0e8a-8dfc-d48472fd5768"
+        };
         [ClassInitialize]
         public static void Init(TestContext context)
         {
             IConfiguration configurationProvider = CreateConfigurationProvider();
             ICosmosFactory cosmosfactory = new CosmosFactory(configurationProvider);
-            // creating a fake instance of cosmos so as to be able to asset the invocations using fakeiteasy
-            // note: this is fake instance and does not hold a reference to the actual cosmos DB           
-            _cosmosRepository = A.Fake<ICosmosRepository>();
+            _cosmosRepository = A.Fake<SqlCosmosRepository>(arg=> arg.WithArgumentsForConstructor(new object[] { cosmosfactory }));
             IRedisCacheFactory redisCacheFactory = new RedisCacheFactory(configurationProvider);
             _redisRepository = new RedisRepository(redisCacheFactory);
-            _readThroughStrategy =  A.Fake<ReadThroughStrategy>(x =>
+            _writeThroughStrategy =  A.Fake<WriteThroughStrategy>(x =>
                                     x.WithArgumentsForConstructor(new Object[] { _redisRepository, _cosmosRepository }));
 
         }
 
         [TestMethod]
-        public async Task Test_ReadFromCache_CacheHit()
+        public async Task Test_WriteThroughCache_SuccessUpdate()
         {
-
             //Act
-           var volcanoObj = await _readThroughStrategy.ReadFromCacheAsync<Volcano>(_partitionKey, _itemId);
+            var updateResult = await _writeThroughStrategy.WriteToCacheAsync<Volcano>(_itemId, writeTestObject);
+            //Assert
+            Assert.IsTrue(updateResult);
 
-            //Assert - Cache-Hit
-            A.CallTo(() => _cosmosRepository.ReadItemAsync<Volcano>(_itemId, _partitionKey)).MustNotHaveHappened();
-            Assert.AreEqual(volcanoObj.id, _itemId);
         }
 
         [TestMethod]
-        public async Task Test_ReadFromCache_CacheMiss()
+        public async Task Test_WriteThroughCache_CacheFails()
         {
+            //Use Fault Injection Techniques to simulate real-time behaviors
+            //https://github.com/Polly-Contrib/Simmy
+            //http://josephwoodward.co.uk/2020/01/chaos-engineering-your-dot-net-application-simmy
 
-            //Act
-            var volcanoObj = await _readThroughStrategy.ReadFromCacheAsync<Volcano>(_partitionKey, _itemId);
-
-            //Assert- Cache Miss
-            // In the absence of value in the redis cache the value would be fetched from the data store
-            A.CallTo(() => _cosmosRepository.ReadItemAsync<Volcano>(_itemId, _partitionKey)).MustHaveHappened();
         }
 
 

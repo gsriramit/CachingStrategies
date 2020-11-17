@@ -39,8 +39,9 @@ namespace CacheStrategyImplementation.Implementation
             var result = false;
             //Create a transaction to execute the redis write and cosmos write as an atomic operation
             var redisTransaction = _redisStore.CreateRedisTranscation();
-            // Create the operation to be performed on redis store
-            await redisTransaction.StringSetAsync(new RedisKey(key), JsonConvert.SerializeObject(item));
+            // Create the operation to be performed on redis store 
+            // This is not an actual write operation and need not be awaited. Also using await with this statement causes the thread execution to exit            
+            _ = redisTransaction.StringSetAsync(new RedisKey(key), JsonConvert.SerializeObject(item));
             // Condition to be checked before committing the redis operation- write updated value to backing database
             if(await _cosmosStore.UpsertItemAsync<T>(key, item))
             {
