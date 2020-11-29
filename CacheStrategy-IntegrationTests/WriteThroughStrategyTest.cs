@@ -8,6 +8,7 @@ using CacheStrategyImplementation.Repos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FakeItEasy;
+using Microsoft.Azure.Cosmos;
 
 namespace CacheStrategy_IntegrationTests
 {
@@ -64,7 +65,17 @@ namespace CacheStrategy_IntegrationTests
             //Use Fault Injection Techniques to simulate real-time behaviors
             //https://github.com/Polly-Contrib/Simmy
             //http://josephwoodward.co.uk/2020/01/chaos-engineering-your-dot-net-application-simmy
-
+            //Act
+            try
+            {
+                var updateResult = await _writeThroughStrategy.WriteToCacheAsync<Volcano>(_itemId, writeTestObject);
+            }
+            catch (Exception ex)
+            {
+                //Assert
+                Assert.AreEqual(typeof(CosmosException), ex.GetType());
+                
+            }
         }
 
 

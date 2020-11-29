@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.AccessControl;
 using System.Text;
 using CacheStrategyImplementation.Configuration;
+using CacheStrategyImplementation.ExecutionPolicies;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
@@ -16,9 +17,6 @@ namespace CacheStrategyImplementation.Factories
     public class CosmosFactory: ICosmosFactory
     {
         private readonly IConfiguration _appConfiguration;
-        private IDocumentClient _documentClient;
-        private Uri _documentCollectionUri;
-        private Uri _databaseUri;
         public CosmosFactory(IConfiguration appConfiguration)
         {
             _appConfiguration = appConfiguration;
@@ -59,7 +57,7 @@ namespace CacheStrategyImplementation.Factories
             int circuitBreakerThresholdExceptions, int circuitBreakerOpenDurationInSeconds, TimeoutStrategy timeoutStrategy)
         {
 
-            var overallOperationTimeOutSpan = TimeSpan.FromSeconds(operationTimeoutInSec);
+            /*var overallOperationTimeOutSpan = TimeSpan.FromSeconds(operationTimeoutInSec);
 
 
             var asyncBreaker = Policy
@@ -73,7 +71,9 @@ namespace CacheStrategyImplementation.Factories
                 Policy.TimeoutAsync(overallOperationTimeOutSpan, timeoutStrategy);
 
 
-            return Policy.WrapAsync(asyncBreaker, asyncPerCallTimeout);
+            return Policy.WrapAsync(asyncBreaker, asyncPerCallTimeout);*/
+            //Test code
+            return ExecutionPolicy.CreateExecutionPolicyWrapper();
 
         }
 
